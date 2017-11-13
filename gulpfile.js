@@ -6,7 +6,11 @@ const concat = require('gulp-concat'); // concat JS
 const sass = require('gulp-sass'); // concat and minify SCSS
 const rename = require('gulp-rename'); // rename files
 const plumber = require('gulp-plumber'); // error handling
-const sourcemaps = require('gulp-sourcemaps'); // sourcmaps
+const sourcemaps = require('gulp-sourcemaps'); // source maps
+const imagemin = require('gulp-imagemin'); // minify png, jpeg, gif and svg
+const imageminPngquant = require('imagemin-pngquant'); // imagemin plugin for png
+const imageminJpegRecompress = require('imagemin-jpeg-recompress'); // imagemin plugin for jpeg
+const del = require('del'); // delete files
 
 /* -+-+-+----------------------------------+-+-+-
 * FILE PATHS
@@ -15,8 +19,11 @@ const sourcemaps = require('gulp-sourcemaps'); // sourcmaps
 const DIST_PATH = 'dist';
 const SCRIPTS_DIST_PATH = `${DIST_PATH}/scripts`;
 const SASS_DIST_PATH = `${DIST_PATH}/styles`;
+const IMAGES_DIST_PATH = `${DIST_PATH}/content`;
 const SCRIPTS_PATH = 'js/**/*.js';
 const SASS_PATH = 'sass/**/*.scss';
+const IMAGES_PATH = 'images/**/*.{png,jpeg,jpg,svg,gif}';
+const ALL_DIST_PATHS = [SCRIPTS_DIST_PATH, SASS_DIST_PATH, IMAGES_DIST_PATH];
 
 /* -+-+-+----------------------------------+-+-+-
 * GULP TASKS
@@ -59,9 +66,62 @@ gulp.task('scripts', () => {
 // Images
 gulp.task('images', () => {
     console.log('starting images task');
+
+    return gulp.src(IMAGES_PATH)
+        .pipe(imagemin([
+            imagemin.gifsicle(), // compress gifs -- lossless
+            imagemin.jpegtran(), // compress jpegs -- lossless
+            imagemin.optipng(), // compress pngs -- lossless
+            imagemin.svgo(), // compress svgs -- lossless
+            imageminPngquant(), // lossy png compression
+            imageminJpegRecompress() // lossy jpeg compress
+        ]))
+        .pipe(gulp.dest(IMAGES_DIST_PATH));
+});
+
+// Delete Files
+gulp.task('clean', () => {
+    console.log('starting clean task');
+
+    return del.sync(ALL_DIST_PATHS);
+});
+
+// Build Task
+gulp.task('build', ['clean', 'images', 'styles', 'scripts'], () => {
+    console.log('starting default task');
 });
 
 // Default
-gulp.task('default', () => {
+gulp.task('default', ['build'], () => {
     console.log('starting default task');
+
+    require('./server');
+    gulp.watch(SASS_PATH, ['styles']);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -11,6 +11,7 @@ const imagemin = require('gulp-imagemin'); // minify png, jpeg, gif and svg
 const imageminPngquant = require('imagemin-pngquant'); // imagemin plugin for png
 const imageminJpegRecompress = require('imagemin-jpeg-recompress'); // imagemin plugin for jpeg
 const del = require('del'); // delete files
+const livereload = require('gulp-livereload'); // reloading website when changes are made
 
 /* -+-+-+----------------------------------+-+-+-
 * FILE PATHS
@@ -44,7 +45,8 @@ gulp.task('styles', () => {
         }))
         .pipe(rename('all.min.css'))
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(SASS_DIST_PATH));
+        .pipe(gulp.dest(SASS_DIST_PATH))
+        .pipe(livereload());
 });
 
 // Scripts
@@ -60,7 +62,8 @@ gulp.task('scripts', () => {
         .pipe(uglify())
         .pipe(concat('all.min.js'))
         .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(SCRIPTS_DIST_PATH));
+        .pipe(gulp.dest(SCRIPTS_DIST_PATH))
+        .pipe(livereload());
 });
 
 // Images
@@ -96,7 +99,9 @@ gulp.task('default', ['build'], () => {
     console.log('starting default task');
 
     require('./server');
+    livereload.listen({ start: true });
     gulp.watch(SASS_PATH, ['styles']);
+    gulp.watch(SCRIPTS_PATH, ['scripts']);
 });
 
 

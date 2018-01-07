@@ -1,1 +1,3 @@
-# GulpBuildJS - Treehouse Tech Degree Project
+# GulpBuildJS
+
+Treehouse Tech Degree Project
